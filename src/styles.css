@@ -1,1 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@theme{
+    --bg-darkmode-gradient: linear-gradient(135deg, #191e29 0%, #181d27 100%);
+}
