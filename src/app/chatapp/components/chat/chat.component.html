@@ -1,0 +1,20 @@
+<div class="h-full flex flex-col">
+    <div class="border-b border-gray-200 dark:border-[#111f35] p-8">
+        <h1 class="font-bold text-2xl">Barry</h1>
+    </div>
+    <div class="flex-1 p-8 overflow-y-auto ">
+        @if (messages) {
+            @for (mes of message; track $index) {
+                <message [message]="mes"></message>
+            }
+        }else{
+            <p class="text-gray-500 dark:text-gray-600 text-3xl font-semibold text-center ">Send your first message...</p>
+        }
+    </div>
+    <div class="border-t border-gray-200 dark:border-[#111f35] p-4">
+        <form (submit)="sendMessage()">
+            <input type="text" [(ngModel)]="message" name="message" placeholder="Type a message..." class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-950 dark:bg-[#0b121c] dark:border-[#111f35]" />
+            <input type="submit" value="Send" class="hidden" />
+        </form>
+    </div>
+</div>

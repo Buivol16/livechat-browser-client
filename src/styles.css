@@ -3,3 +3,19 @@
 @theme{
     --bg-darkmode-gradient: linear-gradient(135deg, #191e29 0%, #181d27 100%);
 }
+
+::-webkit-scrollbar{
+    @apply cursor-pointer;
+    @apply transition;
+    @apply rounded;
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb{
+    @apply bg-[#0d131c];
+    @apply rounded;
+}
+
+html{
+    @apply dark:text-gray-200!
+}

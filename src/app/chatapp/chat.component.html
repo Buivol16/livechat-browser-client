@@ -1,0 +1,14 @@
+<div
+    class="background-gray-100 w-full h-screen flex justify-center items-center dark:bg-linear-120 dark:from-[#191e29] dark:to-[#181d27] text-[18px]">
+    <div class="flex flex-col gap-4 p-8 bg-white dark:bg-[#05090f] rounded-l-lg h-5/6">
+        <div>
+            <h1 class="font-bold text-2xl">Admin</h1>
+            <p class="dark:text-gray-500 text-lg">#00001</p>
+        </div>
+        <button (click)="createNewChat()" class="bg-[#14233e] p-2 rounded-md cursor-pointer">New chat</button>
+        <chatlist-component />
+    </div>
+    <div class="bg-white dark:bg-[#05090f] gap-4 flex flex-col rounded-r-lg h-5/6 border-l border-gray-200 dark:border-[#111f35] w-2/3">
+        <chat class="h-full"/>
+    </div>
+</div>
