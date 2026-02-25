@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 @Component({
     selector: "message",
@@ -8,4 +8,7 @@ import { Component } from "@angular/core";
     imports: []
 })
 export class MessageComponent {
+    readonly isMyMessage = input(false);
+    readonly message = input('');
+    readonly isCompoundMessage = input(false);
 }

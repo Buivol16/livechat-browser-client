@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Chat } from '../models/chat.models';
+import { Component, input, InputSignal, output } from '@angular/core';
+import { Chat } from '../../models/chat.models';
 
 @Component({
   selector: 'chatlist-component',
@@ -8,10 +8,11 @@ import { Chat } from '../models/chat.models';
   standalone: true,
 })
 export class ChatlistComponent {
-  privateChats: Chat[] = [
-    { name: 'Barry' },
-    { name: 'James' },
-    { name: 'Marta' },
-  ];
-  publicChats: Chat[] = [{ name: 'PubChat1' }];
+  readonly privateChats: InputSignal<Chat[] | undefined> = input();
+  readonly publicChats: InputSignal<Chat[] | undefined> = input();
+  readonly selectChatParentFunction = output<Chat>();
+
+  selectChat(selectedChat: Chat){
+    this.selectChatParentFunction.emit(selectedChat)
+  }
 }
