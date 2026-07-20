@@ -1,24 +1,41 @@
-<div class="h-full flex flex-col">
-    <div class="border-b border-gray-200 dark:border-[#111f35] p-8">
-        <h1 class="font-bold text-2xl">{{chatName()}}</h1>
+<div class="h-full w-full flex flex-col padd10 gap10">
+
+
+    <div
+        class="border-b border-[#D9D9D9] dark:border-[#111f35] flex flex-row px-[1.3888888888888888888888888888889vw] py-[1.0416666666666666666666666666667vw] gap10">
+        <img [src]="getChatImage()" alt="Chat image" class="chat-image rounded-full">
+        <div class="h-full content-center">
+            <h1 class="font-normal text-[0.83333333333333333333333333333333vw] text-[#333333]">{{getChatName()}}</h1>
+            <h2 class="font-normal text-[0.69444444444444444444444444444444vw] text-[#A6A6A6]">User</h2>
+        </div>
     </div>
+
+
     <div class="flex-1 p-8 overflow-y-auto flex flex-col gap-2.5">
-        @if (messages()) {
-            @for (mes of messages(); track $index) {
-                <div class="flex w-full gap-2.5" [class.flex-row]="mes.isMyMessage" [class.flex-row-reverse]="!mes.isMyMessage" [class.justify-start]="mes.isMyMessage" [class.justify-end]="!mes.isMyMessage">
-                    <message [message]='mes.content' [isMyMessage]="mes.isMyMessage" [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)" class="w-1/2"/>
-                    <chatprofileimage [isMe]="mes.isMyMessage"/>
-                </div>
-            }
+        @if (getMessages()) {
+        @for (mes of getMessages(); track $index) {
+        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage">
+            <app-message [message]='mes.content' [isMyMessage]="mes.isMyMessage"
+                [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)"
+                [isFirstMessageInCompound]="isFirstMessage(mes, $index)"
+                [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="getFormattedDate(mes)" />
+            <!-- <app-chatprofileimage [isMe]="mes.isMyMessage" [profileImage]="mes.senderImage"/> -->
+        </div>
+        }
         }@else{
-            <p class="text-gray-500 dark:text-gray-600 text-3xl font-semibold text-center ">Send your first message...</p>
+        <p class="text-gray-500 dark:text-gray-600 text-3xl font-semibold text-center ">Send your first message...</p>
         }
     </div>
-    <div class="border-t border-gray-200 dark:border-[#111f35] p-4">
-        <form (submit)="sendMyMessage($event)">
+    <div
+        class="min-h-[2.4305555555555555555555555555556vw] max-h-[2.4305555555555555555555555555556vw]">
+        <form (submit)="sendMyMessage($event)" class="flex flex-row gap-[0.34722222222222222222222222222222vw] h-full">
             <input type="text" [(ngModel)]="message" name="message" placeholder="Type a message..."
-                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-950 dark:bg-[#0b121c] dark:border-[#111f35]" />
-            <input type="submit" value="Send" class="hidden" />
+                class="w-full py-[0.69444444444444444444444444444444vw] px-[1.0416666666666666666666666666667vw] rounded-[9.0972222222222222222222222222222vw] placeholder:text-[#A6A6A6] text-[#333333] focus:outline-none dark:bg-[#0b121c] dark:border-[#111f35] bg-white grow " />
+            <button class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer">
+                <img src="img/emojis.png" alt="emojis">
+            </button>
+            <input type="image" src="img/send.png" alt="send" value="Send" class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer" />
         </form>
+        
     </div>
 </div>

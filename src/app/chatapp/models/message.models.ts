@@ -3,5 +3,6 @@ export interface Message {
     content: string;
     timestamp: Date;
     sender: string;
+    senderImage: string;
     isMyMessage: boolean;
 }

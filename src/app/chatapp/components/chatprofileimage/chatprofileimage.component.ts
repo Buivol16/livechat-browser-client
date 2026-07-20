@@ -1,7 +1,7 @@
 import { Component, input } from "@angular/core";
 
 @Component({
-    selector: "chatprofileimage",
+    selector: "app-chatprofileimage",
     templateUrl: "./chatprofileimage.component.html",
     styleUrl: "./chatprofileimage.component.css",
     standalone: true,
@@ -9,4 +9,5 @@ import { Component, input } from "@angular/core";
 })
 export class ChatProfileImageComponent{
     readonly isMe = input(false);
+    readonly profileImage = input.required<string>();
 }

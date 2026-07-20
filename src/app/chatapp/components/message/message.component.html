@@ -1,9 +1,9 @@
-<div class="rounded-2xl rounded-br-none">
-    <div class="dark:bg-[#111a29] text-white p-4 rounded-2xl max-w-[75%] break-words"
-        [class.rounded-br-none]="isMyMessage() && !isCompoundMessage()"
-        [class.rounded-bl-none]="!isMyMessage() && !isCompoundMessage()"
-        [class.float-right]="isMyMessage()"
-        [class.float-left]="!isMyMessage()">
-        {{ message() }}
+<p class="text-end text-[0.55555555555555555555555555555556vw] text-[#A6A6A6] mb-[0.34722222222222222222222222222222vw]">At {{when()}}</p>
+<div class="flex flex-row">
+    <div class="left-[9px] bg-white border-[0.06944444444444444444444444444444vw] border-[#F2F2F2] rounded-full w-[0.97222222222222222222222222222222vw] aspect-square relative self-end"><img src="img/checkstatus.svg" alt="check"></div>
+    <div class="dark:bg-[#111a29] text-[#333333] text-[0.83333333333333333333333333333333vw] p-[0.69444444444444444444444444444444vw] max-w-[100%] break-words rounded-[12.5vw] rounded-br-none bg-white w-fit h-full"
+        [class.justify-self-end]="isMyMessage()"
+        [class.justify-self-start]="!isMyMessage()">
+        {{message()}}
     </div>
 </div>

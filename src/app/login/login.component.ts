@@ -14,10 +14,10 @@ import { Router } from "@angular/router";
   ],
 })
 export class LoginAppComponent {
-  username: string = '';
-  isLoading: boolean = false;
-  messages: string[] = ['Initializing login sequence...'];
-  messagesTemplate: string[] = [
+  username= '';
+  isLoading = false;
+  messages = ['Initializing login sequence...'];
+  messagesTemplate = [
     'Verifying credentials...',
     'Establishing secure connection...',
     'Fetching user data...',

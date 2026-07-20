@@ -1,11 +1,13 @@
-import { Directive, ElementRef } from '@angular/core';
+import { Directive, ElementRef, inject } from '@angular/core';
 
 @Directive({
-  selector: '[message]',
+  selector: '[appMessage]',
   standalone: true,
 })
 export class MessageDirective {
-  constructor(private elementRef: ElementRef) {
-    elementRef.nativeElement.inner
-  }
+  private elementRef = inject(ElementRef);
+
+  // constructor(private elementRef: ElementRef) {
+  //   elementRef.nativeElement.inner;
+  // }
 }
