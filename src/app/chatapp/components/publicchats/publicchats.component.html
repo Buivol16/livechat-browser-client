@@ -4,8 +4,8 @@
             <app-chat [imgSrc]="chat.imgSrc ?? ''" [chatName]="chat.name ?? ''"
                 [lastMessage]="getLastMessageContent(chat)"
                 [whenLastMessage]="getNowDate(chat)"
-                [isRead]="chat.isRead" [showOnline]="chat.isPrivate ?? false" [isOnline]="chat.isOnline"
-                [lastOnMenuList]="chats().length-1 === $index" />
+                [isRead]="chat.isRead" [showOnline]="false" [isOnline]="chat.isOnline"
+                [lastOnMenuList]="chats().length-1 === $index" [chat]="chat" [isSelected]="chatService.getCurrentChatName() === chat.name" />
         }
     </div>
 </div>

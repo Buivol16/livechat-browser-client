@@ -1,14 +1,15 @@
 import { Component, inject, input } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import { ChatService } from "../../services/chatservice";
+import { ChatService } from "../../services/chat/chatservice";
 import { Chat } from "../../models/chat.models";
+import { NgClass } from "@angular/common";
 
 @Component({
     standalone: true,
     selector: "app-chat",
     templateUrl: "./chat.component.html",
     styleUrl: "./chat.component.css",
-    imports: [RouterLink]
+    imports: [RouterLink, NgClass]
 })
 export class ChatComponent{
     protected readonly chatService: ChatService = inject(ChatService);
@@ -22,21 +23,15 @@ export class ChatComponent{
     readonly showOnline = input(false);
     readonly isOnline = input(false);
     readonly lastOnMenuList = input.required<boolean>();
+    readonly chat = input.required<Chat>();
+    readonly isSelected = input.required<boolean>();
 
     selectThisChat(){
-        const chat: Chat = {
-            name: this.chatName(),
-            isRead: this.isRead(),
-            isOnline: this.isOnline(),
-            imgSrc: this.imgSrc(),
-            messages: []
-        };
-
-        this.chatService.selectChat(chat);
+        this.chatService.selectChat(this.chat());
     }
 
     getLastMessageDateFormatted(){
-        const date = this.whenLastMessage();
+        const date = new Date(this.whenLastMessage()!);
         if(!date) return '';
         const month = date.getMonth() > 9 ? date.getMonth() : '0' + date.getMonth();
 

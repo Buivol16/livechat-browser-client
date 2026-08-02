@@ -1,7 +1,7 @@
 import { Component, inject, signal, WritableSignal } from "@angular/core";
 import { ChatComponent } from "../chat/chat.component";
 import { Chat } from "../../models/chat.models";
-import { ChatService } from "../../services/chatservice";
+import { ChatService } from "../../services/chat/chatservice";
 
 @Component({
     standalone: true,
@@ -20,25 +20,27 @@ export class PublicChatsComponent{
     
     getAndMapChats(){
         const result = this.chatService.getPublicChats();
-        
-        if(result){
+        result.subscribe((objs) => {
             this.chats?.update(chats => {
-                chats = [...result];
+                chats = objs.map((object) => ({
+                    ...object,
+                    members: [],
+                    messages: [],
+                }));
                 return chats;
             });
-        }
-
+        });
     }
 
     getNowDate(chat: Chat){
         if(chat.messages.length > 0){
-            return chat.messages[chat.messages.length-1].timestamp;
+            return chat.messages[chat.messages.length-1].createdAt;
         }else{
             return null;
         }
     }
 
     getLastMessageContent(chat: Chat){
-        return (chat.messages[chat.messages.length-1] && chat.messages[chat.messages.length-1].content) ?? '';
+        return (chat.messages[chat.messages.length-1] && chat.messages[chat.messages.length-1].encryptedMessage) ?? '';
     }
 }

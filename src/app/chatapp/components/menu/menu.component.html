@@ -24,4 +24,10 @@
         </div>
         <app-public-chats />
     </div>
+    <div class="flex flex-col section-gap">
+        <button type="button" (click)="login($event)" class="w-full bg-white rounded-2xl py-6 cursor-pointer">Authenticate</button>
+    </div>
+    <div class="flex flex-col section-gap">
+        <button type="button" (click)="logout($event)" class="w-full bg-white rounded-2xl py-6 cursor-pointer">Log out</button>
+    </div>
 </div>

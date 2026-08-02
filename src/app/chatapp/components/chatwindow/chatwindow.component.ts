@@ -1,10 +1,9 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Message } from '../../models/message.models';
-import { Chat } from '../../models/chat.models';
-import { ChatService } from '../../services/chatservice';
+import { ChatService } from '../../services/chat/chatservice';
 import { MessageComponent } from "../message/message.component";
-// import { ChatProfileImageComponent } from "../chatprofileimage/chatprofileimage.component";
+import { MessageService } from '../../services/message/messageservice';
 
 @Component({
   selector: 'app-chatwindow',
@@ -18,33 +17,43 @@ import { MessageComponent } from "../message/message.component";
 })
 export class ChatWindowComponent {
   readonly chatService = inject(ChatService);
-
-  readonly currChat = input<Chat>();
+  readonly messageService = inject(MessageService);
   readonly message = signal('');
+  readonly currChat = this.chatService.getCurrentChatSignal();
 
   sendMyMessage(event: SubmitEvent) {
+    if(this.message().trim().length < 1) return;
+    const chat = this.currChat()!;
+
     const mess: Message = {
-      content: this.message(), 
-      id: 1,
+      encryptedMessage: this.message(), 
+      id: null,
       isMyMessage: true,
-      sender: 'Me',
+      authorId: '5ba4fe19-d930-49c3-8a0e-6077e2b5ff17',
       senderImage: 'img/avatarka.png',
-      timestamp: new Date()
+      createdAt: new Date(),
+      isPrivateChat: true,
+      chatId: chat.id,
+      deletedForAll: false,
+      deletedForAuthorOnly: false,
+      modifiedAt: null,
+      receiverId: "7d2b8e6f-9b58-4651-81a8-063e6a43aff9",
+      isRead: false,
     };
 
-    this.chatService.sendMessage(mess);
+    this.messageService.sendMessage(mess, chat);
     
     this.message.set('');
     event.preventDefault();
   }
 
   getMessages(){
-    return this.chatService.getMessages();
+    return this.currChat()?.messages;
   }
-
+  
   haveNextMessageFromSameSender(currentMessage: Message, currentIndex: number){
     const nextMessage = this.chatService.getMessages()[currentIndex + 1];
-    if(nextMessage && currentMessage.sender === nextMessage.sender){
+    if(nextMessage && currentMessage.authorId === nextMessage.authorId){
       return true;
     }else{
       return false;
@@ -60,18 +69,20 @@ export class ChatWindowComponent {
   }
 
   isFirstMessage(mes: Message, index: number){
-    const messages = this.getMessages();
+    const messages = this.currChat()!.messages;
     if(messages[index-1] === undefined) return true;
-    else return messages[index-1].sender !== mes.sender;
+    else return messages[index-1].id !== mes.id;
   }
 
   isLastMessage(mes: Message, index: number){
-    const messages = this.getMessages();
-    return messages[index+1] === undefined || messages[index+1].sender !== mes.sender;
+    const messages = this.currChat()!.messages;
+    return messages[index+1] === undefined || messages[index+1].id !== mes.id;
   }
 
   getFormattedDate(mes: Message){
-    const when = mes.timestamp;
-    return when.getHours() + ":" + when.getMinutes();
+    const when: Date = new Date(mes.createdAt);
+    let minutes = '' + when.getMinutes();
+    if(Number.parseInt(minutes) < 10) minutes = '0' + minutes;
+    return when.getHours() + ":" + minutes;
   }
 }

@@ -1,3 +1,4 @@
+import { NgClass } from "@angular/common";
 import { Component, input } from "@angular/core";
 
 @Component({
@@ -5,7 +6,7 @@ import { Component, input } from "@angular/core";
     templateUrl: "./message.component.html",
     styleUrl: "./message.component.css",
     standalone: true,
-    imports: []
+    imports: [NgClass]
 })
 export class MessageComponent {
     readonly isMyMessage = input(false);
@@ -14,4 +15,6 @@ export class MessageComponent {
     readonly isFirstMessageInCompound = input(false);
     readonly isLastMessageInCompound = input(false);
     readonly when = input.required<string>();
+    readonly isChecked = input.required<boolean>();
+    readonly isSent = input.required<boolean>();
 }

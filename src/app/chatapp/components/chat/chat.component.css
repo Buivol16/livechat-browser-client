@@ -35,7 +35,6 @@
 
 .clickable{
     cursor: pointer;
-    background: hsl(0, 0%, 100%);
     transition: background ease-in-out 0.1s;
 }
 

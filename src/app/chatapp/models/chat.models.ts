@@ -1,11 +1,9 @@
 import { Message } from "./message.models";
 
 export interface Chat {
-    id?: string;
+    id: number;
     imgSrc?: string;
     name?: string;
-    isPublic?: boolean;
-    isPrivate?: boolean;
     members?: string[];
     messages: Message[];
     isOnline: boolean;
