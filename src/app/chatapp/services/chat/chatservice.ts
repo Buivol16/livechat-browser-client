@@ -19,7 +19,7 @@ export class ChatService{
     private selectedChat: WritableSignal<Chat | undefined> = signal(undefined);
     // readonly privateChats?: Chat[] = [this.createPrivateChat("Denys Khmara", false, [this.createMessage("Where are you?", false, "Denys Khmara", 'img/dkhmara.png', new Date(), false)], 'img/dkhmara.png'), this.createPrivateChat("Kevin McGrace", true, undefined, 'img/kmcgrace.png'), this.createPrivateChat("Catherine River", true, undefined, 'img/criver.png')];
     readonly publicChats?: Chat[] = [this.createPublicChat('Cat lovers', undefined, 'img/catloversavatar.png'), this.createPublicChat('Dog lovers', undefined, 'img/dogloversavatar.png'), this.createPublicChat('Monke funny', undefined, 'img/monkeavatar.png')];
-    
+    readonly messages = signal<Message[]>([]);
     getPrivateChats() : Observable<Chat[]>{
         return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + "/private", {
             headers: {
@@ -39,7 +39,10 @@ export class ChatService{
     selectChat(chat: Chat){
         if(chat){ 
             this.selectedChat.update(() => chat);
-            this.messageService.getAllMessagesByChatIdAndIsPrivate(chat.id, true).subscribe((messages) => chat.messages = [...messages]);
+            this.messageService.getAllMessagesByChatIdAndIsPrivate(chat.id, true).subscribe((messages) => {
+                this.messageService.setMessagesSignal(true);
+                return chat.messages = [...messages];
+            });
         }
     }
     
