@@ -14,12 +14,12 @@
     <div #chatContainer class="flex-1 p-8 overflow-y-auto flex flex-col gap-2.5">
         @if (this.currChat()) {
         @for (mes of this.currChat()!.messages; track $index) {
-        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage">
+        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage" >
             <app-message [message]='mes.encryptedMessage' [isMyMessage]="mes.isMyMessage"
                 [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)"
                 [isFirstMessageInCompound]="isFirstMessage(mes, $index)"
                 [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="getFormattedDate(mes)"
-                [isChecked]="mes.isRead" [isSent]="false" />
+                [isChecked]="mes.isRead" [isSent]="false" [id]="mes.id!" />
             <!-- <app-chatprofileimage [isMe]="mes.isMyMessage" [profileImage]="mes.senderImage"/> -->
         </div>
         }

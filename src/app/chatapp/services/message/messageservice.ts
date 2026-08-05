@@ -46,4 +46,8 @@ export class MessageService {
   setMessagesSignal(val: boolean){ 
     this.messagesReceived.set(val);
   }
+
+  checkMessage(messageId: number){
+    console.log(`[DEBUG] checking message with id ${messageId}`);
+  }
 }

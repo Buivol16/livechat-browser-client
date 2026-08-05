@@ -1,7 +1,7 @@
 <p class="text-[0.83333333333333333333333333333333vw] text-[#A6A6A6] mb-[0.41666666666666666666666666666667vw] mr-[0.83333333333333333333333333333333vw]"
     [ngClass]="isMyMessage() ? 'text-end' : 'text-start'">
     At {{when()}}</p>
-<div class="flex flex-row">
+<div #messageContainer class="flex flex-row">
     @if (isMyMessage()) {
     <div
         class="left-[0.55555555555555555555555555555556vw] bg-white box-content border-[0.19vw] border-[#F2F2F2] rounded-full w-[1.1666666666666666666666666666667vw] aspect-square relative self-end">
