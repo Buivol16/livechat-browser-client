@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col padd10 gap10">
+
+
+    <div
+        class="border-b border-[#D9D9D9] dark:border-[#111f35] flex flex-row px-[1.3888888888888888888888888888889vw] py-[1.0416666666666666666666666666667vw] gap10">
+        <img [src]="getChatImage()" alt="Chat image" class="chat-image rounded-full">
+        <div class="h-full content-center">
+            <h1 class="font-normal text-[1vw] text-[#333333]">{{getChatName()}}</h1>
+            <h2 class="font-normal text-[0.83333333333333333333333333333333vw] text-[#A6A6A6]">User</h2>
+        </div>
+    </div>
+
+
+    <div class="flex-1 p-8 overflow-y-auto flex flex-col gap-2.5">
+        @if (getMessages()) {
+        @for (mes of getMessages(); track $index) {
+        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage">
+            <app-message [message]='mes.encryptedMessage' [isMyMessage]="mes.isMyMessage"
+                [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)"
+                [isFirstMessageInCompound]="isFirstMessage(mes, $index)"
+                [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="getFormattedDate(mes)"
+                [isChecked]="mes.isRead" [isSent]="false" />
+            <!-- <app-chatprofileimage [isMe]="mes.isMyMessage" [profileImage]="mes.senderImage"/> -->
+        </div>
+        }
+        }@else{
+        <p class="text-gray-500 dark:text-gray-600 text-3xl font-semibold text-center ">Send your first message...</p>
+        }
+    </div>
+    @if (this.currChat()) {
+        <div class="min-h-[2.4305555555555555555555555555556vw] max-h-[2.4305555555555555555555555555556vw]">
+            <form autocomplete="off" (submit)="sendMyMessage($event)"
+                class="flex flex-row gap-[0.34722222222222222222222222222222vw] h-full">
+                <input type="text" [(ngModel)]="message" name="message" placeholder="Type a message..."
+                    class="w-full py-[0.69444444444444444444444444444444vw] px-[1.0416666666666666666666666666667vw] rounded-[9.0972222222222222222222222222222vw] text-[0.97222222222222222222222222222222vw] placeholder:text-[#A6A6A6] text-[#333333] focus:outline-none dark:bg-[#0b121c] dark:border-[#111f35] bg-white grow " />
+                <button type="button"
+                    class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer">
+                    <img src="img/emojis.png" alt="emojis">
+                </button>
+                <input type="image" src="img/send.png" alt="send" value="Send"
+                    class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer" />
+            </form>
+
+        </div>
+    }
+</div>

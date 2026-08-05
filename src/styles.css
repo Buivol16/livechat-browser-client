@@ -1,1 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+@theme{
+    --bg-darkmode-gradient: linear-gradient(135deg, #191e29 0%, #181d27 100%);
+    --color-background-gray: #F2F2F2;
+    --color-border-gray: #D9D9D9;
+    --color-text-accent: #333333;
+    --color-text-noaccent: #A6A6A6;
+    --color-status-online: #4BD932;
+    --color-status-offline: #D9D9D9;
+}
+
+::-webkit-scrollbar{
+    @apply cursor-pointer;
+    @apply transition;
+    @apply rounded;
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb{
+    @apply bg-[#0d131c];
+    @apply rounded;
+}
+
+html{
+    font-family: 'Inter', sans-serif;
+    @apply dark:text-gray-200!
+}
