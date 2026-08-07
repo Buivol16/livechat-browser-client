@@ -1,6 +1,7 @@
 import {
   afterRenderEffect,
   Component,
+  computed,
   ElementRef,
   inject,
   signal,
@@ -30,10 +31,16 @@ export class ChatWindowComponent {
   readonly chatScrollService = inject(ChatScrollService);
   readonly message = signal('');
   readonly currChat = this.chatService.getCurrentChatSignal();
-
+  readonly receiverId = computed(() => {
+    if (this.currChat()!.isPrivate) return this.currChat()!.receiverId;
+    else return 'null';
+  });
 
   @ViewChild('chatContainer')
   private chatContainer?: ElementRef<HTMLDivElement>;
+
+  timeoutId: number | undefined;
+  readonly checkedMessages = signal<number[]>([]);
 
   readonly renderedMessages = viewChildren(MessageComponent);
 
@@ -59,7 +66,7 @@ export class ChatWindowComponent {
       encryptedMessage: this.message(),
       id: null,
       isMyMessage: true,
-      authorId: '5ba4fe19-d930-49c3-8a0e-6077e2b5ff17',
+      authorId: 'null',
       senderImage: 'img/avatarka.png',
       createdAt: new Date(),
       isPrivateChat: true,
@@ -67,8 +74,9 @@ export class ChatWindowComponent {
       deletedForAll: false,
       deletedForAuthorOnly: false,
       modifiedAt: null,
-      receiverId: '7d2b8e6f-9b58-4651-81a8-063e6a43aff9',
+      receiverId: this.currChat()!.receiverId,
       isRead: false,
+      isSent: false,
     };
 
     this.messageService.sendMessage(mess, chat);
@@ -107,10 +115,12 @@ export class ChatWindowComponent {
     );
   }
 
-  getFormattedDate(mes: Message) {
-    const when: Date = new Date(mes.createdAt);
-    let minutes = '' + when.getMinutes();
-    if (Number.parseInt(minutes) < 10) minutes = '0' + minutes;
-    return when.getHours() + ':' + minutes;
+  writeCheckedMessageId(id: number) {
+    this.checkedMessages.update((val) => [...val, id]);
+
+    clearTimeout(this.timeoutId);
+    this.timeoutId = setTimeout(() => {
+      this.messageService.checkMessages(this.checkedMessages());
+    }, 2000);
   }
 }

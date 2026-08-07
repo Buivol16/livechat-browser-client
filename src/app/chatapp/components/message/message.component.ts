@@ -1,20 +1,62 @@
-import { NgClass } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { NgClass } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  output,
+  ViewChild,
+} from '@angular/core';
+import { MessageService } from '../../services/message/messageservice';
 
 @Component({
-    selector: "app-message",
-    templateUrl: "./message.component.html",
-    styleUrl: "./message.component.css",
-    standalone: true,
-    imports: [NgClass]
+  selector: 'app-message',
+  templateUrl: './message.component.html',
+  styleUrl: './message.component.css',
+  standalone: true,
+  imports: [NgClass],
 })
-export class MessageComponent {
-    readonly isMyMessage = input(false);
-    readonly message = input('');
-    readonly isCompoundMessage = input(false);
-    readonly isFirstMessageInCompound = input(false);
-    readonly isLastMessageInCompound = input(false);
-    readonly when = input.required<string>();
-    readonly isChecked = input.required<boolean>();
-    readonly isSent = input.required<boolean>();
+export class MessageComponent implements AfterViewInit {
+  readonly isMyMessage = input(false);
+  readonly message = input('');
+  readonly isCompoundMessage = input(false);
+  readonly isFirstMessageInCompound = input(false);
+  readonly isLastMessageInCompound = input(false);
+  readonly when = input.required<string>();
+  readonly isChecked = input.required<boolean>();
+  readonly isSent = input.required<boolean>();
+  readonly id = input.required<number>();
+  readonly messageService = inject(MessageService);
+
+  private readonly visibilityThreshold = 0.6;
+
+  @ViewChild('messageContainer')
+  private readonly messageElem?: ElementRef<HTMLDivElement>;
+
+  private readonly destroyRef = inject(DestroyRef);
+  private observer?: IntersectionObserver;
+
+  readonly writeCheckedMessage = output<number>();
+
+  ngAfterViewInit(): void {
+    if (!this.messageElem) return;
+
+    this.observer = new IntersectionObserver(
+      () => {
+        if (!this.isChecked() && !this.isMyMessage()) this.writeCheckedMessage.emit(this.id());
+      },
+      {
+        root: this.messageElem?.nativeElement,
+        threshold: this.visibilityThreshold,
+      },
+    );
+
+    this.observer.observe(this.messageElem.nativeElement);
+
+    this.destroyRef.onDestroy(() => {
+      this.observer?.disconnect();
+    });
+  }
 }

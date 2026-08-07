@@ -9,8 +9,9 @@ export interface Message {
     modifiedAt: Date | null;
     deletedForAll: boolean;
     deletedForAuthorOnly: boolean;
-
+    formattedDate?: string;
     senderImage: string;
     isMyMessage: boolean;
     isRead: boolean;
+    isSent: boolean;
 }

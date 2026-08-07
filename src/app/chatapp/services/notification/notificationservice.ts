@@ -37,22 +37,34 @@ export default class NotificationService implements OnDestroy {
     if (this.socket && this.socket.connected) {
       console.log('[STOMP] TRYING TO GET TOKEN FROM KEYCLOAK');
       this.socket.connectHeaders = {};
-      this.socket.subscribe('/user/topic/notification', (message) => {
-        console.log('[STOMP CLIENT] ' + message);
-        const notificationUuid = JSON.parse(message.body).notificationUuid;
-        this.http.post(
-          this.NOTIFICATION_CONFIRMED_URL,
-          {
-            notificationUuid,
-          },
-          {
-            headers: {
-              Authorization: this.keycloakService.getToken(),
-            },
-          },
-        ).subscribe();
-      });
+      this.subscribeToNotificationTopic();
+      this.subscribeToReadMessageTopic();
     }
+  }
+  subscribeToReadMessageTopic() {
+    this.socket.subscribe('/topic/message/read', (message) => {
+      console.log('[STOMP CLIENT] ' + message);
+      const messageIds = JSON.parse(message.body).messageIds;
+      console.log(`[STOMP CLIENT] message ids that was read ${messageIds}`);
+    });
+  }
+
+  private subscribeToNotificationTopic() {
+    this.socket.subscribe('/user/topic/notification', (message) => {
+      console.log('[STOMP CLIENT] ' + message);
+      const notificationUuid = JSON.parse(message.body).notificationUuid;
+      this.http.post(
+        this.NOTIFICATION_CONFIRMED_URL,
+        {
+          notificationUuid,
+        },
+        {
+          headers: {
+            Authorization: this.keycloakService.getToken(),
+          },
+        }
+      ).subscribe();
+    });
   }
 
   ngOnDestroy(): void {
