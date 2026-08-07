@@ -1,11 +1,12 @@
 import { NgClass } from '@angular/common';
 import {
-    AfterViewInit,
+  AfterViewInit,
   Component,
   DestroyRef,
   ElementRef,
   inject,
   input,
+  output,
   ViewChild,
 } from '@angular/core';
 import { MessageService } from '../../services/message/messageservice';
@@ -37,11 +38,14 @@ export class MessageComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private observer?: IntersectionObserver;
 
+  readonly writeCheckedMessage = output<number>();
+
   ngAfterViewInit(): void {
     if (!this.messageElem) return;
+
     this.observer = new IntersectionObserver(
       () => {
-        if(!this.isChecked() && !this.isMyMessage()) this.messageService.checkMessage(this.id());
+        if (!this.isChecked() && !this.isMyMessage()) this.writeCheckedMessage.emit(this.id());
       },
       {
         root: this.messageElem?.nativeElement,

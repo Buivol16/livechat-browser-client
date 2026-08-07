@@ -26,6 +26,7 @@ export class PrivateChatsComponent{
                     ...object,
                     members: [],
                     messages: [],
+                    isPrivate: true
                 }));
                 return chats;
             });

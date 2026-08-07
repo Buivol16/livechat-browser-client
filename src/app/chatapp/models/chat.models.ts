@@ -5,7 +5,9 @@ export interface Chat {
     imgSrc?: string;
     name?: string;
     members?: string[];
+    receiverId: string;
     messages: Message[];
     isOnline: boolean;
     isRead: boolean;
+    isPrivate: boolean;
 }

@@ -18,8 +18,8 @@
             <app-message [message]='mes.encryptedMessage' [isMyMessage]="mes.isMyMessage"
                 [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)"
                 [isFirstMessageInCompound]="isFirstMessage(mes, $index)"
-                [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="getFormattedDate(mes)"
-                [isChecked]="mes.isRead" [isSent]="false" [id]="mes.id!" />
+                [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="mes.formattedDate!"
+                [isChecked]="mes.isRead" [isSent]="mes.isSent" [id]="mes.id!" (writeCheckedMessage)="writeCheckedMessageId($event)"/>
             <!-- <app-chatprofileimage [isMe]="mes.isMyMessage" [profileImage]="mes.senderImage"/> -->
         </div>
         }

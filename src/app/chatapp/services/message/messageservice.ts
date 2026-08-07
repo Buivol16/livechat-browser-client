@@ -16,14 +16,26 @@ export class MessageService {
 
   sendMessage(message: Message, chat: Chat) {
     const oldMessages = chat.messages;
+    this.trySendMessage(message, chat);
+    message.formattedDate = this.getFormattedDate(message.createdAt);
+    chat.messages = [...oldMessages!, message];
+  }
+
+  private trySendMessage(message: Message, chat: Chat) {
     this.http
       .post(this.MESSAGE_SERVICE_URL_PREFIX, message, {
         headers: {
           Authorization: this.keycloakService.getToken(),
         },
       })
-      .subscribe();
-    chat.messages = [...oldMessages!, message];
+      .subscribe({
+        complete() {
+          message.isSent = true;
+        },
+        error: () => {
+          setTimeout(() => this.trySendMessage(message, chat), 5000);
+        },
+      });
   }
 
   getAllMessagesByChatIdAndIsPrivate(chatId: number, isPrivate: boolean) {
@@ -43,11 +55,29 @@ export class MessageService {
     return this.messagesReceived;
   }
 
-  setMessagesSignal(val: boolean){ 
+  setMessagesSignal(val: boolean) {
     this.messagesReceived.set(val);
   }
 
-  checkMessage(messageId: number){
-    console.log(`[DEBUG] checking message with id ${messageId}`);
+  checkMessages(messageIds: number[]) {
+    const ids = messageIds.join(',');
+    console.log(`[DEBUG] checking message with id ${ids}`);
+    this.http
+      .patch(this.MESSAGE_SERVICE_URL_PREFIX + '/read', null, {
+        params: {
+          messageId: ids,
+        },
+        headers: {
+          Authorization: this.keycloakService.getToken(),
+        },
+      })
+      .subscribe();
+  }
+
+  private getFormattedDate(date: Date) {
+    const when: Date = new Date(date);
+    let minutes = '' + when.getMinutes();
+    if (Number.parseInt(minutes) < 10) minutes = '0' + minutes;
+    return when.getHours() + ':' + minutes;
   }
 }
