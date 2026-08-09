@@ -2,6 +2,9 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import KeycloakService from '../keycloak/keycloakservice';
 import { HttpClient } from '@angular/common/http';
+import { ChatService } from '../chat/chatservice';
+import { Message } from '../../models/message.models';
+import { MessageReadEvent } from '../../models/messagereadevent.models';
 
 @Injectable({
   providedIn: 'any',
@@ -10,6 +13,7 @@ import { HttpClient } from '@angular/common/http';
 export default class NotificationService implements OnDestroy {
   private readonly keycloakService = inject(KeycloakService);
   private readonly http = inject(HttpClient);
+  private readonly chatService = inject(ChatService);
 
   private readonly NOTIFICATION_SERVICE_URL =
     'ws://localhost:8080/notification';
@@ -26,8 +30,15 @@ export default class NotificationService implements OnDestroy {
       console.log('[STOMP] connected:', JSON.stringify(frame.headers));
       this.listenNotification();
     },
+    onWebSocketError: () => {
+      setTimeout(() => this.listenNotification(), 2000);
+    }
   });
   private subscription: StompSubscription | undefined;
+
+  private readonly NEW_MESSAGE_NOTIFICATION_URL = '/user/topic/notification';
+
+  private readonly READ_MESSAGE_EVENT_NOTIFICATION_URL = '/user/topic/message/read';
 
   constructor() {
     this.socket.activate();
@@ -42,28 +53,36 @@ export default class NotificationService implements OnDestroy {
     }
   }
   subscribeToReadMessageTopic() {
-    this.socket.subscribe('/topic/message/read', (message) => {
-      console.log('[STOMP CLIENT] ' + message);
-      const messageIds = JSON.parse(message.body).messageIds;
-      console.log(`[STOMP CLIENT] message ids that was read ${messageIds}`);
+    this.socket.subscribe(this.READ_MESSAGE_EVENT_NOTIFICATION_URL, (message) => {
+      console.log('[STOMP CLIENT] readed your message');
+      const messageReads: MessageReadEvent = JSON.parse(message.body);
+      this.chatService.readMessage(messageReads);
+      console.log(`[STOMP CLIENT] message ids that was read ${messageReads}`);
     });
   }
 
   private subscribeToNotificationTopic() {
-    this.socket.subscribe('/user/topic/notification', (message) => {
-      console.log('[STOMP CLIENT] ' + message);
-      const notificationUuid = JSON.parse(message.body).notificationUuid;
-      this.http.post(
-        this.NOTIFICATION_CONFIRMED_URL,
-        {
-          notificationUuid,
-        },
-        {
-          headers: {
-            Authorization: this.keycloakService.getToken(),
+    this.socket.subscribe(this.NEW_MESSAGE_NOTIFICATION_URL, (message) => {
+      console.log('[STOMP CLIENT] received new message');
+      const json = JSON.parse(message.body);
+      const parsed: Message = json.message;
+      parsed.correlationId = json.correlationId;
+      parsed.formattedDate = this.getFormattedDate(parsed.createdAt);
+      const notificationUuid = json.notificationUuid;
+      this.chatService.addMessageToSelectedChat(parsed);
+      this.http
+        .post(
+          this.NOTIFICATION_CONFIRMED_URL,
+          {
+            notificationUuid,
           },
-        }
-      ).subscribe();
+          {
+            headers: {
+              Authorization: this.keycloakService.getToken(),
+            },
+          },
+        )
+        .subscribe();
     });
   }
 
@@ -71,6 +90,13 @@ export default class NotificationService implements OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  private getFormattedDate(date: Date) {
+    const when: Date = new Date(date);
+    let minutes = '' + when.getMinutes();
+    if (Number.parseInt(minutes) < 10) minutes = '0' + minutes;
+    return when.getHours() + ':' + minutes;
   }
 }
 

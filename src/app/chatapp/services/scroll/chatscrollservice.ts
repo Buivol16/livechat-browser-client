@@ -7,6 +7,8 @@ export class ChatScrollService {
   private readonly storagePrefix = 'chat-scroll-position:';
   private chatContainer?: ElementRef<HTMLDivElement>;
 
+  atTheEndOfScroll = false;
+  timeoutId?: number;
   registerChatContainer(chatContainer: ElementRef<HTMLDivElement>) {
     this.chatContainer = chatContainer;
   }
@@ -41,13 +43,37 @@ export class ChatScrollService {
     console.log('restoring position');
     const scrollTop = this.get(chatId);
     if (!this.chatContainer) return;
-    console.log(
-      '[Chat Scroll Service] scrollHeight: ' +
-        this.chatContainer.nativeElement.scrollHeight,
-    );
-    if (!scrollTop)
-      this.chatContainer.nativeElement.scrollTop =
-        this.chatContainer.nativeElement.scrollHeight;
-    else this.chatContainer.nativeElement.scrollTop = scrollTop;
+    const nativeElement = this.chatContainer.nativeElement;
+    const scrollHeight = nativeElement.scrollHeight;
+
+    console.log(`[DEBUG] at the end of scroll: ${this.atTheEndOfScroll}`);
+    if (this.atTheEndOfScroll) {
+      nativeElement.scrollTop = scrollHeight;
+      return;
+    }
+
+    console.log('[Chat Scroll Service] scrollHeight: ' + scrollHeight);
+    if (!scrollTop) {
+      nativeElement.scrollTop = scrollHeight;
+      this.atTheEndOfScroll = true;
+    } else {
+      this.chatContainer.nativeElement.scrollTop = scrollTop;
+      this.atTheEndOfScroll = false;
+    }
+  }
+
+  checkTheEndOfScroll(chatId: number) {
+
+    if (!this.chatContainer) return;
+    const nativeElement = this.chatContainer.nativeElement;
+    const scrollTop = nativeElement.scrollTop;
+    const clientHeight = nativeElement.clientHeight;
+    const scrollHeight = nativeElement.scrollHeight;
+
+    const difference = Math.abs(scrollTop + clientHeight - scrollHeight);
+    if (difference < 100 && difference >= 0 ) {
+      this.atTheEndOfScroll = true;
+    } else this.atTheEndOfScroll = false;
+    setTimeout(() => this.save(chatId), 2000);
   }
 }

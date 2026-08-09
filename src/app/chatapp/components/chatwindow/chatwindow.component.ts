@@ -14,6 +14,7 @@ import { ChatService } from '../../services/chat/chatservice';
 import { MessageComponent } from '../message/message.component';
 import { MessageService } from '../../services/message/messageservice';
 import { ChatScrollService } from '../../services/scroll/chatscrollservice';
+import { MessageReadEvent } from '../../models/messagereadevent.models';
 
 @Component({
   selector: 'app-chatwindow',
@@ -40,7 +41,7 @@ export class ChatWindowComponent {
   private chatContainer?: ElementRef<HTMLDivElement>;
 
   timeoutId: number | undefined;
-  readonly checkedMessages = signal<number[]>([]);
+  readonly checkedMessages = signal<MessageReadEvent[]>([]);
 
   readonly renderedMessages = viewChildren(MessageComponent);
 
@@ -48,11 +49,15 @@ export class ChatWindowComponent {
     afterRenderEffect(() => {
       const chat = this.currChat();
       const messagesReceived = this.messageService.getMessagesSignal();
+
       if (!chat || !messagesReceived() || !this.chatContainer) return;
-      if (this.renderedMessages().length != chat.messages.length) return;
-      console.log(
-        'Scroll height: ' + this.chatContainer?.nativeElement.scrollHeight,
-      );
+
+      const nativeElement = this.chatContainer?.nativeElement;
+      const scrollHeight = nativeElement.scrollHeight;
+
+      if (this.renderedMessages().length !== chat.messages.length) return;
+
+      console.log('Scroll height: ' + scrollHeight);
       this.chatScrollService.registerChatContainer(this.chatContainer);
       this.chatScrollService.restorePosition(chat.id);
     });
@@ -115,12 +120,14 @@ export class ChatWindowComponent {
     );
   }
 
-  writeCheckedMessageId(id: number) {
-    this.checkedMessages.update((val) => [...val, id]);
+  writeCheckedMessageId(id: number, authorId: string) {
+    this.checkedMessages.update((val) => [...val, { messageId: id, authorId }]);
 
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       this.messageService.checkMessages(this.checkedMessages());
+      this.checkedMessages.set([]);
     }, 2000);
   }
 }
+

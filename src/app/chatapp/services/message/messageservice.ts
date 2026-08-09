@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Message } from '../../models/message.models';
 import { Chat } from '../../models/chat.models';
 import KeycloakService from '../keycloak/keycloakservice';
+import { MessageReadEvent } from '../../models/messagereadevent.models';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,7 @@ export class MessageService {
         headers: {
           Authorization: this.keycloakService.getToken(),
         },
+        observe: 'response',
       })
       .subscribe({
         complete() {
@@ -34,6 +36,11 @@ export class MessageService {
         },
         error: () => {
           setTimeout(() => this.trySendMessage(message, chat), 5000);
+        },
+        next: (val) => {
+          const corrId = val.headers.get('X-Correlation-Id');
+          if (!corrId) return;
+          message.correlationId = corrId;
         },
       });
   }
@@ -59,14 +66,11 @@ export class MessageService {
     this.messagesReceived.set(val);
   }
 
-  checkMessages(messageIds: number[]) {
+  checkMessages(messageIds: MessageReadEvent[]) {
     const ids = messageIds.join(',');
     console.log(`[DEBUG] checking message with id ${ids}`);
     this.http
-      .patch(this.MESSAGE_SERVICE_URL_PREFIX + '/read', null, {
-        params: {
-          messageId: ids,
-        },
+      .patch(this.MESSAGE_SERVICE_URL_PREFIX + '/read', [...messageIds], {
         headers: {
           Authorization: this.keycloakService.getToken(),
         },

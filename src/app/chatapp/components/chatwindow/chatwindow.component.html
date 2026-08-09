@@ -11,15 +11,17 @@
     </div>
 
 
-    <div #chatContainer class="flex-1 p-8 overflow-y-auto flex flex-col gap-2.5">
+    <div #chatContainer class="flex-1 p-8 overflow-y-auto flex flex-col gap-2.5"
+        (scroll)="this.chatScrollService.checkTheEndOfScroll(this.currChat()!.id)">
         @if (this.currChat()) {
         @for (mes of this.currChat()!.messages; track $index) {
-        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage" >
+        <div class="flex w-full gap-[0.69444444444444444444444444444444vw]" [class.justify-end]="mes.isMyMessage">
             <app-message [message]='mes.encryptedMessage' [isMyMessage]="mes.isMyMessage"
                 [isCompoundMessage]="haveNextMessageFromSameSender(mes, $index)"
                 [isFirstMessageInCompound]="isFirstMessage(mes, $index)"
                 [isLastMessageInCompound]="isLastMessage(mes, $index)" [when]="mes.formattedDate!"
-                [isChecked]="mes.isRead" [isSent]="mes.isSent" [id]="mes.id!" (writeCheckedMessage)="writeCheckedMessageId($event)"/>
+                [isChecked]="mes.isRead" [isSent]="mes.isSent" [id]="mes.id!" [authorId]="mes.authorId"
+                (writeCheckedMessage)="writeCheckedMessageId($event.messageId, $event.authorId)" />
             <!-- <app-chatprofileimage [isMe]="mes.isMyMessage" [profileImage]="mes.senderImage"/> -->
         </div>
         }
@@ -28,19 +30,19 @@
         }
     </div>
     @if (this.currChat()) {
-        <div class="min-h-[2.4305555555555555555555555555556vw] max-h-[2.4305555555555555555555555555556vw]">
-            <form autocomplete="off" (submit)="sendMyMessage($event)"
-                class="flex flex-row gap-[0.34722222222222222222222222222222vw] h-full">
-                <input type="text" [(ngModel)]="message" name="message" placeholder="Type a message..."
-                    class="w-full py-[0.69444444444444444444444444444444vw] px-[1.0416666666666666666666666666667vw] rounded-[9.0972222222222222222222222222222vw] text-[0.97222222222222222222222222222222vw] placeholder:text-[#A6A6A6] text-[#333333] focus:outline-none dark:bg-[#0b121c] dark:border-[#111f35] bg-white grow " />
-                <button type="button"
-                    class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer">
-                    <img src="img/emojis.png" alt="emojis">
-                </button>
-                <input type="image" src="img/send.png" alt="send" value="Send"
-                    class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer" />
-            </form>
+    <div class="min-h-[2.4305555555555555555555555555556vw] max-h-[2.4305555555555555555555555555556vw]">
+        <form autocomplete="off" (submit)="sendMyMessage($event)"
+            class="flex flex-row gap-[0.34722222222222222222222222222222vw] h-full">
+            <input type="text" [(ngModel)]="message" name="message" placeholder="Type a message..."
+                class="w-full py-[0.69444444444444444444444444444444vw] px-[1.0416666666666666666666666666667vw] rounded-[9.0972222222222222222222222222222vw] text-[0.97222222222222222222222222222222vw] placeholder:text-[#A6A6A6] text-[#333333] focus:outline-none dark:bg-[#0b121c] dark:border-[#111f35] bg-white grow " />
+            <button type="button"
+                class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer">
+                <img src="img/emojis.png" alt="emojis">
+            </button>
+            <input type="image" src="img/send.png" alt="send" value="Send"
+                class="h-full aspect-square bg-white rounded-full p-[0.34722222222222222222222222222222vw] cursor-pointer" />
+        </form>
 
-        </div>
+    </div>
     }
 </div>

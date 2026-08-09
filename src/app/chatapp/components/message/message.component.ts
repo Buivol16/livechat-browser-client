@@ -10,6 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MessageService } from '../../services/message/messageservice';
+import { MessageReadEvent } from '../../models/messagereadevent.models';
 
 @Component({
   selector: 'app-message',
@@ -28,6 +29,7 @@ export class MessageComponent implements AfterViewInit {
   readonly isChecked = input.required<boolean>();
   readonly isSent = input.required<boolean>();
   readonly id = input.required<number>();
+  readonly authorId = input.required<string>();
   readonly messageService = inject(MessageService);
 
   private readonly visibilityThreshold = 0.6;
@@ -38,17 +40,23 @@ export class MessageComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private observer?: IntersectionObserver;
 
-  readonly writeCheckedMessage = output<number>();
+  readonly writeCheckedMessage = output<MessageReadEvent>();
 
   ngAfterViewInit(): void {
     if (!this.messageElem) return;
 
     this.observer = new IntersectionObserver(
-      () => {
-        if (!this.isChecked() && !this.isMyMessage()) this.writeCheckedMessage.emit(this.id());
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          entry.intersectionRatio >= this.visibilityThreshold &&
+          !this.isChecked() &&
+          !this.isMyMessage()
+        ) {
+          this.writeCheckedMessage.emit({messageId: this.id(), authorId: this.authorId()});
+        }
       },
       {
-        root: this.messageElem?.nativeElement,
         threshold: this.visibilityThreshold,
       },
     );

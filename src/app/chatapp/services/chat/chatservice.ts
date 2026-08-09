@@ -1,10 +1,11 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { Chat } from '../../models/chat.models';
 import { Message } from '../../models/message.models';
 import { MessageService } from '../message/messageservice';
 import KeycloakService from '../keycloak/keycloakservice';
+import { MessageReadEvent } from '../../models/messagereadevent.models';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +43,15 @@ export class ChatService {
     }
   }
 
+  readMessage(messageIds: MessageReadEvent) {
+    const chat = this.selectedChat();
+    if (chat) {
+      chat.messages.find(
+        (message) => message.id === messageIds.messageId,
+      )!.isRead = true;
+    }
+  }
+
   private tryGetMessages(chat: Chat) {
     this.messageService
       .getAllMessagesByChatIdAndIsPrivate(chat.id, true)
@@ -51,6 +61,7 @@ export class ChatService {
           messages.forEach((message) => {
             message.isSent = true;
             message.formattedDate = this.getFormattedDate(message.createdAt);
+            message.correlationId = undefined;
           });
           chat.messages = [...messages];
         },
@@ -71,7 +82,7 @@ export class ChatService {
   // createPublicChat(name: string, allMessages: Message[] = [], imgSrc: string) : Chat{
   //     return { name: name, messages: allMessages, isOnline: false, isRead: false, imgSrc: imgSrc, id: 0,};
   // }
-  
+
   private getFormattedDate(date: Date) {
     const when: Date = new Date(date);
     let minutes = '' + when.getMinutes();
@@ -104,6 +115,26 @@ export class ChatService {
       return this.selectedChat()!.messages;
     } else {
       return [];
+    }
+  }
+
+  addMessageToSelectedChat(message: Message) {
+    const chat = this.selectedChat;
+    if (chat() && message.chatId === chat()!.id) {
+      chat.update((val) => {
+        const foundMessage = val!.messages.filter(
+          (mes) => mes.correlationId === message.correlationId,
+        )[0];
+        if (foundMessage) {
+          foundMessage.id = message.id;
+          foundMessage.authorId = message.authorId;
+          return val;
+        }
+        val!.messages = [...chat()!.messages, message];
+        return val;
+      });
+    } else {
+      console.error('[HANDLED ERROR] There is no selected chat');
     }
   }
 
