@@ -14,4 +14,5 @@ export interface Message {
     isMyMessage: boolean;
     isRead: boolean;
     isSent: boolean;
+    correlationId?: string;
 }
