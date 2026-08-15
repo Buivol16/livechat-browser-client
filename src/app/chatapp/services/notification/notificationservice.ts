@@ -19,7 +19,7 @@ export default class NotificationService implements OnDestroy {
     'ws://localhost:8080/notification';
 
   private readonly NOTIFICATION_CONFIRMED_URL =
-    'http://localhost:8080/notification/confirm';
+    'http://localhost:5555/notification-service/notification/confirm';
 
   private socket: Client = new Client({
     brokerURL: this.NOTIFICATION_SERVICE_URL,

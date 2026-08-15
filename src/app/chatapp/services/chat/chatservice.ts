@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Chat } from '../../models/chat.models';
 import { Message } from '../../models/message.models';
 import { MessageService } from '../message/messageservice';
@@ -50,6 +50,19 @@ export class ChatService {
         (message) => message.id === messageIds.messageId,
       )!.isRead = true;
     }
+  }
+
+  getShareCode(chatId: number) {
+    return this.http.get(this.CHAT_SERVICE_URL_PREFIX + '/create-invite', {
+      headers: {
+        Authorization: this.keycloakService.getToken(),
+      },
+      params: {
+        chatId: chatId,
+      },
+      observe: 'body',
+      responseType: 'text',
+    });
   }
 
   private tryGetMessages(chat: Chat) {
