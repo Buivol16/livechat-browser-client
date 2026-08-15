@@ -8,6 +8,12 @@
             <h1 class="font-normal text-[1vw] text-[#333333]">{{getChatName()}}</h1>
             <h2 class="font-normal text-[0.83333333333333333333333333333333vw] text-[#A6A6A6]">User</h2>
         </div>
+        @if(this.currChat() && !this.currChat()!.isPrivate){
+        <div class="ml-auto self-center">
+            <button class="cursor-pointer" (click)="copyLink()">Share</button>
+            <p>{{this.currChat()!.shareLink}}</p>
+        </div>
+        }
     </div>
 
 

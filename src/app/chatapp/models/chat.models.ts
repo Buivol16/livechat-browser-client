@@ -10,4 +10,5 @@ export interface Chat {
     isOnline: boolean;
     isRead: boolean;
     isPrivate: boolean;
+    shareLink: string;
 }

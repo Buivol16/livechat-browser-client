@@ -129,5 +129,19 @@ export class ChatWindowComponent {
       this.checkedMessages.set([]);
     }, 2000);
   }
+  
+  protected copyLink(){
+    const chat = this.currChat();
+    if(chat){
+      this.chatService.getShareCode(chat.id).subscribe({
+        next: (value) => {
+          const url = "http://localhost:5555/chat-service/chat/join/" + value;
+          chat.shareLink = url;
+        },
+      });
+    }else{
+      console.error("[HANDLED ERROR] Please, select chat to copy share link");
+    }
+  }
 }
 
