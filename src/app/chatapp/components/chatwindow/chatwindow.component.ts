@@ -143,7 +143,7 @@ export class ChatWindowComponent {
     if (chat) {
       this.chatService.getShareCode(chat.id).subscribe({
         next: (value) => {
-          const url = 'http://localhost:5555/chat-service/chat/join/' + value;
+          const url = `${window.location.origin}/main/join/${value}`;
           chat.shareLink = url;
         },
       });
