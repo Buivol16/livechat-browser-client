@@ -1,5 +1,5 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { Client, StompSubscription } from '@stomp/stompjs';
+import { Client, messageCallbackType, StompSubscription } from '@stomp/stompjs';
 import KeycloakService from '../keycloak/keycloakservice';
 import { HttpClient } from '@angular/common/http';
 import { ChatService } from '../chat/chatservice';
@@ -21,6 +21,15 @@ export default class NotificationService implements OnDestroy {
   private readonly NOTIFICATION_CONFIRMED_URL =
     'http://localhost:5555/notification-service/notification/confirm';
 
+  private readonly NEW_MESSAGE_NOTIFICATION_URL = '/user/topic/notification';
+
+  private readonly READ_MESSAGE_EVENT_NOTIFICATION_URL =
+    '/user/topic/message/read';
+
+  private readonly USER_JOINS_EVENT_NOTIFICATION_URL = '/user/topic/user/joins';
+
+  private userJoinsEventSubscriptionId?: string;
+
   private socket: Client = new Client({
     brokerURL: this.NOTIFICATION_SERVICE_URL,
     connectHeaders: {
@@ -32,13 +41,9 @@ export default class NotificationService implements OnDestroy {
     },
     onWebSocketError: () => {
       setTimeout(() => this.listenNotification(), 2000);
-    }
+    },
   });
   private subscription: StompSubscription | undefined;
-
-  private readonly NEW_MESSAGE_NOTIFICATION_URL = '/user/topic/notification';
-
-  private readonly READ_MESSAGE_EVENT_NOTIFICATION_URL = '/user/topic/message/read';
 
   constructor() {
     this.socket.activate();
@@ -53,12 +58,28 @@ export default class NotificationService implements OnDestroy {
     }
   }
   subscribeToReadMessageTopic() {
-    this.socket.subscribe(this.READ_MESSAGE_EVENT_NOTIFICATION_URL, (message) => {
-      console.log('[STOMP CLIENT] readed your message');
-      const messageReads: MessageReadEvent = JSON.parse(message.body);
-      this.chatService.readMessage(messageReads);
-      console.log(`[STOMP CLIENT] message ids that was read ${messageReads}`);
-    });
+    this.socket.subscribe(
+      this.READ_MESSAGE_EVENT_NOTIFICATION_URL,
+      (message) => {
+        console.log('[STOMP CLIENT] readed your message');
+        const messageReads: MessageReadEvent = JSON.parse(message.body);
+        this.chatService.readMessage(messageReads);
+        console.log(`[STOMP CLIENT] message ids that was read ${messageReads}`);
+      },
+    );
+  }
+
+  getChatMemberUpdate(callback: messageCallbackType) {
+    this.userJoinsEventSubscriptionId = this.socket.subscribe(
+      this.USER_JOINS_EVENT_NOTIFICATION_URL,
+      callback,
+    ).id;
+  }
+
+  unsubscribeChatMemberUpdate() {
+    if (this.userJoinsEventSubscriptionId) {
+      this.socket.unsubscribe(this.userJoinsEventSubscriptionId);
+    }
   }
 
   private subscribeToNotificationTopic() {
@@ -71,12 +92,9 @@ export default class NotificationService implements OnDestroy {
       const notificationUuid = json.notificationUuid;
       this.chatService.addMessageToSelectedChat(parsed);
       this.http
-        .post(
-          this.NOTIFICATION_CONFIRMED_URL,
-          {
-            notificationUuid,
-          },
-        )
+        .post(this.NOTIFICATION_CONFIRMED_URL, {
+          notificationUuid,
+        })
         .subscribe();
     });
   }
