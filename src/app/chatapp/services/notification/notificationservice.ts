@@ -76,11 +76,6 @@ export default class NotificationService implements OnDestroy {
           {
             notificationUuid,
           },
-          {
-            headers: {
-              Authorization: this.keycloakService.getToken(),
-            },
-          },
         )
         .subscribe();
     });

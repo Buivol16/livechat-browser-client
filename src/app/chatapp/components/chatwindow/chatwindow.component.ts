@@ -15,13 +15,15 @@ import { MessageComponent } from '../message/message.component';
 import { MessageService } from '../../services/message/messageservice';
 import { ChatScrollService } from '../../services/scroll/chatscrollservice';
 import { MessageReadEvent } from '../../models/messagereadevent.models';
+import { ChatProfile } from "../chatprofile/chatprofile.component";
+import { Member } from '../../models/member.models';
 
 @Component({
   selector: 'app-chatwindow',
   templateUrl: './chatwindow.component.html',
   styleUrl: './chatwindow.component.css',
   standalone: true,
-  imports: [FormsModule, MessageComponent /* ChatProfileImageComponent*/],
+  imports: [FormsModule, MessageComponent /* ChatProfileImageComponent*/, ChatProfile],
   host: {
     class: 'w-full',
   },
@@ -36,37 +38,43 @@ export class ChatWindowComponent {
     if (this.currChat()!.isPrivate) return this.currChat()!.receiverId;
     else return 'null';
   });
-
+  
+  readonly chatProfileOpened = signal(false);
+  
   @ViewChild('chatContainer')
   private chatContainer?: ElementRef<HTMLDivElement>;
-
+  
   timeoutId: number | undefined;
   readonly checkedMessages = signal<MessageReadEvent[]>([]);
-
+  
   readonly renderedMessages = viewChildren(MessageComponent);
-
+  
   constructor() {
     afterRenderEffect(() => {
       const chat = this.currChat();
       const messagesReceived = this.messageService.getMessagesSignal();
-
+      
       if (!chat || !messagesReceived() || !this.chatContainer) return;
-
+      
       const nativeElement = this.chatContainer?.nativeElement;
       const scrollHeight = nativeElement.scrollHeight;
-
+      
       if (this.renderedMessages().length !== chat.messages.length) return;
-
+      
       console.log('Scroll height: ' + scrollHeight);
       this.chatScrollService.registerChatContainer(this.chatContainer);
       this.chatScrollService.restorePosition(chat.id);
     });
   }
 
+  removeUser(mem: Member) {
+    this.chatService.kickMember(mem);
+  }
+  
   sendMyMessage(event: SubmitEvent) {
     if (this.message().trim().length < 1) return;
     const chat = this.currChat()!;
-
+    
     const mess: Message = {
       encryptedMessage: this.message(),
       id: null,
@@ -129,19 +137,18 @@ export class ChatWindowComponent {
       this.checkedMessages.set([]);
     }, 2000);
   }
-  
-  protected copyLink(){
+
+  protected copyLink() {
     const chat = this.currChat();
-    if(chat){
+    if (chat) {
       this.chatService.getShareCode(chat.id).subscribe({
         next: (value) => {
-          const url = "http://localhost:5555/chat-service/chat/join/" + value;
+          const url = 'http://localhost:5555/chat-service/chat/join/' + value;
           chat.shareLink = url;
         },
       });
-    }else{
-      console.error("[HANDLED ERROR] Please, select chat to copy share link");
+    } else {
+      console.error('[HANDLED ERROR] Please, select chat to copy share link');
     }
   }
 }
-
