@@ -1,12 +1,20 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+@if (chatProfileOpened() && this.currChat()) {
+<app-chatprofile [chat]="this.currChat()!" (closeWindow)="chatProfileOpened.set(false)" [chatDescription]="this.currChat()!.description" (removeUserFunc)="this.removeUser($event)"/>
+}
+
 <div class="h-full w-full flex flex-col padd10 gap10">
-
-
     <div
         class="border-b border-[#D9D9D9] dark:border-[#111f35] flex flex-row px-[1.3888888888888888888888888888889vw] py-[1.0416666666666666666666666666667vw] gap10">
-        <img [src]="getChatImage()" alt="Chat image" class="chat-image rounded-full">
+        <img [src]="getChatImage()" alt="Chat image" class="chat-image rounded-full cursor-pointer"
+            (click)="chatProfileOpened.set(true)">
         <div class="h-full content-center">
-            <h1 class="font-normal text-[1vw] text-[#333333]">{{getChatName()}}</h1>
+            <h1 class="font-normal text-[1vw] text-[#333333] cursor-pointer" (click)="chatProfileOpened.set(true)">
+                {{getChatName()}}</h1>
+            @if(this.currChat() && this.currChat()!.isPrivate){
             <h2 class="font-normal text-[0.83333333333333333333333333333333vw] text-[#A6A6A6]">User</h2>
+            }
         </div>
         @if(this.currChat() && !this.currChat()!.isPrivate){
         <div class="ml-auto self-center">

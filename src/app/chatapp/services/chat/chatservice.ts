@@ -6,6 +6,8 @@ import { Message } from '../../models/message.models';
 import { MessageService } from '../message/messageservice';
 import KeycloakService from '../keycloak/keycloakservice';
 import { MessageReadEvent } from '../../models/messagereadevent.models';
+import { Member } from '../../models/member.models';
+import { ChatPreview } from '../../models/chatpreview.models';
 
 @Injectable({
   providedIn: 'root',
@@ -21,19 +23,22 @@ export class ChatService {
   // readonly publicChats?: Chat[] = [this.createPublicChat('Cat lovers', undefined, 'img/catloversavatar.png'), this.createPublicChat('Dog lovers', undefined, 'img/dogloversavatar.png'), this.createPublicChat('Monke funny', undefined, 'img/monkeavatar.png')];
   readonly messages = signal<Message[]>([]);
   getPrivateChats(): Observable<Chat[]> {
-    return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + '/private', {
-      headers: {
-        Authorization: this.keycloakService.getToken(),
-      },
-    });
+    return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + '/private');
   }
 
   getPublicChats() {
-    return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + '/public', {
-      headers: {
-        Authorization: this.keycloakService.getToken(),
+    return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + '/public');
+  }
+
+  getChatPreview(chatId: number) {
+    return this.http.get<ChatPreview>(
+      this.CHAT_SERVICE_URL_PREFIX + '/chat-preview',
+      {
+        params: {
+          chatId: chatId,
+        },
       },
-    });
+    );
   }
 
   selectChat(chat: Chat) {
@@ -54,15 +59,30 @@ export class ChatService {
 
   getShareCode(chatId: number) {
     return this.http.get(this.CHAT_SERVICE_URL_PREFIX + '/create-invite', {
-      headers: {
-        Authorization: this.keycloakService.getToken(),
-      },
       params: {
         chatId: chatId,
       },
       observe: 'body',
       responseType: 'text',
     });
+  }
+
+  getMembersOfChat(chatId: number) {
+    return this.http.get<Member[]>(this.CHAT_SERVICE_URL_PREFIX + '/members', {
+      params: {
+        chatId: chatId,
+      },
+    });
+  }
+
+  kickMember(mem: Member) {
+    this.http
+      .delete(this.CHAT_SERVICE_URL_PREFIX + '/remove-member', {
+        params: {
+          memId: mem.id,
+        },
+      })
+      .subscribe();
   }
 
   private tryGetMessages(chat: Chat) {

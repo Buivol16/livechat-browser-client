@@ -25,9 +25,6 @@ export class MessageService {
   private trySendMessage(message: Message, chat: Chat) {
     this.http
       .post(this.MESSAGE_SERVICE_URL_PREFIX, message, {
-        headers: {
-          Authorization: this.keycloakService.getToken(),
-        },
         observe: 'response',
       })
       .subscribe({
@@ -47,9 +44,6 @@ export class MessageService {
 
   getAllMessagesByChatIdAndIsPrivate(chatId: number, isPrivate: boolean) {
     const request = this.http.get<Message[]>(this.MESSAGE_SERVICE_URL_PREFIX, {
-      headers: {
-        Authorization: this.keycloakService.getToken(),
-      },
       params: {
         chatId: chatId,
         isPrivate: isPrivate,
@@ -70,11 +64,7 @@ export class MessageService {
     const ids = messageIds.join(',');
     console.log(`[DEBUG] checking message with id ${ids}`);
     this.http
-      .patch(this.MESSAGE_SERVICE_URL_PREFIX + '/read', [...messageIds], {
-        headers: {
-          Authorization: this.keycloakService.getToken(),
-        },
-      })
+      .patch(this.MESSAGE_SERVICE_URL_PREFIX + '/read', [...messageIds])
       .subscribe();
   }
 
