@@ -15,15 +15,21 @@ import { MessageComponent } from '../message/message.component';
 import { MessageService } from '../../services/message/messageservice';
 import { ChatScrollService } from '../../services/scroll/chatscrollservice';
 import { MessageReadEvent } from '../../models/messagereadevent.models';
-import { ChatProfile } from "../chatprofile/chatprofile.component";
+import { ChatProfile } from '../chatprofile/chatprofile.component';
 import { Member } from '../../models/member.models';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-chatwindow',
   templateUrl: './chatwindow.component.html',
   styleUrl: './chatwindow.component.css',
   standalone: true,
-  imports: [FormsModule, MessageComponent /* ChatProfileImageComponent*/, ChatProfile],
+  imports: [
+    FormsModule,
+    MessageComponent /* ChatProfileImageComponent*/,
+    ChatProfile,
+    RouterOutlet
+],
   host: {
     class: 'w-full',
   },
@@ -32,15 +38,16 @@ export class ChatWindowComponent {
   readonly chatService = inject(ChatService);
   readonly messageService = inject(MessageService);
   readonly chatScrollService = inject(ChatScrollService);
+  readonly router = inject(Router);
   readonly message = signal('');
   readonly currChat = this.chatService.getCurrentChatSignal();
   readonly receiverId = computed(() => {
     if (this.currChat()!.isPrivate) return this.currChat()!.receiverId;
     else return 'null';
   });
-  
+
   readonly chatProfileOpened = signal(false);
-  
+
   @ViewChild('chatContainer')
   private chatContainer?: ElementRef<HTMLDivElement>;
   
@@ -67,6 +74,10 @@ export class ChatWindowComponent {
     });
   }
 
+  openShareWindow() {
+    this.router.navigate(['/main/chat/share']);
+  }
+  
   removeUser(mem: Member) {
     this.chatService.kickMember(mem);
   }
@@ -74,7 +85,7 @@ export class ChatWindowComponent {
   sendMyMessage(event: SubmitEvent) {
     if (this.message().trim().length < 1) return;
     const chat = this.currChat()!;
-    
+
     const mess: Message = {
       encryptedMessage: this.message(),
       id: null,
@@ -136,19 +147,5 @@ export class ChatWindowComponent {
       this.messageService.checkMessages(this.checkedMessages());
       this.checkedMessages.set([]);
     }, 2000);
-  }
-
-  protected copyLink() {
-    const chat = this.currChat();
-    if (chat) {
-      this.chatService.getShareCode(chat.id).subscribe({
-        next: (value) => {
-          const url = 'http://localhost:5555/chat-service/chat/join/' + value;
-          chat.shareLink = url;
-        },
-      });
-    } else {
-      console.error('[HANDLED ERROR] Please, select chat to copy share link');
-    }
   }
 }

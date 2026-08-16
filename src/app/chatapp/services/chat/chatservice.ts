@@ -30,12 +30,12 @@ export class ChatService {
     return this.http.get<Chat[]>(this.CHAT_SERVICE_URL_PREFIX + '/public');
   }
 
-  getChatPreview(chatId: number) {
+  getChatPreview(code: string) {
     return this.http.get<ChatPreview>(
       this.CHAT_SERVICE_URL_PREFIX + '/chat-preview',
       {
         params: {
-          chatId: chatId,
+          code: code,
         },
       },
     );
@@ -46,6 +46,12 @@ export class ChatService {
       this.selectedChat.update(() => chat);
       this.tryGetMessages(chat);
     }
+  }
+
+  joinToChat(code: string, onComplete: () => void) {
+    this.http.post(`${this.CHAT_SERVICE_URL_PREFIX}/join/${code}`, null).subscribe({
+      complete: onComplete
+    });
   }
 
   readMessage(messageIds: MessageReadEvent) {
