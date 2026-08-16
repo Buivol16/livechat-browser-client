@@ -1,5 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<router-outlet />
 @if (chatProfileOpened() && this.currChat()) {
 <app-chatprofile [chat]="this.currChat()!" (closeWindow)="chatProfileOpened.set(false)" [chatDescription]="this.currChat()!.description" (removeUserFunc)="this.removeUser($event)"/>
 }
@@ -18,8 +19,7 @@
         </div>
         @if(this.currChat() && !this.currChat()!.isPrivate){
         <div class="ml-auto self-center">
-            <button class="cursor-pointer" (click)="copyLink()">Share</button>
-            <p>{{this.currChat()!.shareLink}}</p>
+            <button class="cursor-pointer" (click)="openShareWindow()">Share</button>
         </div>
         }
     </div>
